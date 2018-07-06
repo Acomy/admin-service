@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.ProjectQuestionMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.ProjectQuestion">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="project_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="course_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="question_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="is_open" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="is_mandatory" javaType="java.lang.Byte" jdbcType="TINYINT" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, course_id, question_id, create_user, create_date, oper_user, oper_date, is_open, is_mandatory
+  </sql>
+
+  <select id="selectGroupByChrType" parameterType="java.lang.Long" resultType="com.bossien.common.model.GroupProject">
+    select q.question_type type, count(q.id) count
+    from question q, course_question cq
+    where cq.question_id = q.question_id and cq.course_id in
+    (select pc.course_id from project_basic pb, project_question pc where pb.id = #{projectId,jdbcType=BIGINT} and pb.id = pc.project_id)
+    group by q.question_type
+  </select>
+
+  <delete id="deleteByProjectId"  parameterType="java.lang.Long">
+    delete from project_question
+    where project_id = #{projectId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="selectProjectQuestionSize" resultType="java.lang.Integer">
+    select count(*) from project_question
+    where project_id = #{projectId,jdbcType=BIGINT} and question_id = #{questionId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from project_question
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from project_question
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.ProjectQuestion">
+    insert into project_question (id, project_id, course_id,
+      question_id, create_user,
+      create_date, oper_user, oper_date, is_open, is_mandatory
+      )
+    values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{courseId,jdbcType=BIGINT}, 
+      #{questionId,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR},
+      #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}, #{isOpen,jdbcType=TINYINT}, #{isMandatory,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.ProjectQuestion">
+    insert into project_question
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="questionId != null">
+        question_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="isOpen != null">
+        is_open,
+      </if>
+      <if test="isMandatory != null">
+        is_mandatory,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=BIGINT},
+      </if>
+      <if test="questionId != null">
+        #{questionId,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isOpen != null">
+        #{isOpen,jdbcType=TINYINT},
+      </if>
+      <if test="isMandatory != null">
+        #{isMandatory,jdbcType=TINYINT},
+      </if>
+    </trim>;
+  </insert>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index"
+             separator="" open="" close="">
+      insert into project_question
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="item.id != null">
+          id,
+        </if>
+        <if test="item.projectId != null">
+          project_id,
+        </if>
+        <if test="item.courseId != null">
+          course_id,
+        </if>
+        <if test="item.questionId != null">
+          question_id,
+        </if>
+        <if test="item.createUser != null">
+          create_user,
+        </if>
+        <if test="item.createDate != null">
+          create_date,
+        </if>
+        <if test="item.operUser != null">
+          oper_user,
+        </if>
+        <if test="item.operDate != null">
+          oper_date,
+        </if>
+        <if test="item.isOpen != null">
+          is_open,
+        </if>
+        <if test="item.isMandatory != null">
+          is_mandatory,
+        </if>
+      </trim>
+      <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="item.id != null">
+          #{item.id,jdbcType=BIGINT},
+        </if>
+        <if test="item.projectId != null">
+          #{item.projectId,jdbcType=BIGINT},
+        </if>
+        <if test="item.courseId != null">
+          #{item.courseId,jdbcType=BIGINT},
+        </if>
+        <if test="item.questionId != null">
+          #{item.questionId,jdbcType=BIGINT},
+        </if>
+        <if test="item.createUser != null">
+          #{item.createUser,jdbcType=VARCHAR},
+        </if>
+        <if test="item.createDate != null">
+          #{item.createDate,jdbcType=TIMESTAMP},
+        </if>
+        <if test="item.operUser != null">
+          #{item.operUser,jdbcType=VARCHAR},
+        </if>
+        <if test="item.operDate != null">
+          #{item.operDate,jdbcType=TIMESTAMP},
+        </if>
+        <if test="item.isOpen != null">
+          #{item.isOpen,jdbcType=TINYINT},
+        </if>
+        <if test="item.isMandatory != null">
+          #{item.isMandatory,jdbcType=TINYINT},
+        </if>
+      </trim>;
+    </foreach>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.ProjectQuestion">
+    update project_question
+    <set>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="courseId != null">
+        course_id = #{courseId,jdbcType=BIGINT},
+      </if>
+      <if test="questionId != null">
+        question_id = #{questionId,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isOpen != null">
+        is_open = #{isOpen,jdbcType=TINYINT},
+      </if>
+      <if test="isMandatory != null">
+        is_mandatory = #{isMandatory,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.ProjectQuestion">
+    update project_question
+    set project_id = #{projectId,jdbcType=BIGINT},
+      course_id = #{courseId,jdbcType=BIGINT},
+      question_id = #{questionId,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      is_open = #{isOpen,jdbcType=TINYINT},
+      is_mandatory = #{isMandatory,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

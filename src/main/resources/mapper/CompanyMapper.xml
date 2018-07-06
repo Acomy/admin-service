@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.CompanyMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Company">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="company_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="business_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="region_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="legal_person" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contacter" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="contacter_telephone" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="post_code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="address" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="is_regulatory" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="pid" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="hierarchy" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="orderby" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="state" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="type_id" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="people_number" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="BaseTreeResultMap" type="com.bossien.common.model.basics.Company">
+      <id property="id" column="id"/>
+      <result property="companyName" column="company_name"/>
+      <result property="pid" column="pid"/>
+      <result property="remark" column="remark"/>
+      <result property="hierarchy" column="hierarchy"/>
+      <result property="isRegulatory" column="is_regulatory"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, code, company_name, business_id, region_id, legal_person, contacter, contacter_telephone, 
+    post_code, address, is_regulatory, pid, hierarchy, orderby, remark, create_user, create_date,
+    oper_user, oper_date, state, type_id, people_number
+  </sql>
+
+  <select id="selectByCompanyName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from company
+    where company_name = #{companyName,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByCompanyCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from company
+    where code = #{code,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectRegulatoryCompanyTree" parameterType="java.lang.Long" resultMap="BaseTreeResultMap">
+      select id, company_name, pid, pid remark, hierarchy, is_regulatory
+      from company
+      where is_regulatory = 1
+      <if test="pid != null ">
+        and pid = #{pid,jdbcType=BIGINT}
+      </if>
+      <if test="pid == null ">
+        and pid = 0
+      </if>
+      order by code asc
+  </select>
+
+  <select id="selectRegulatoryCompanyTreeSize" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(id) from company where is_regulatory = 1
+    <if test="pid != null ">
+      and pid = #{pid,jdbcType=BIGINT}
+    </if>
+  </select>
+
+  <delete id="delete" parameterType="java.lang.Long">
+    delete from company
+    where id in
+    <foreach collection="array" item="ids" index="index"
+             open="(" close=")" separator=",">
+      #{ids,jdbcType=BIGINT}
+    </foreach>
+  </delete>
+
+
+  <select id="getCompanyCodeByPid" resultType="java.lang.String">
+    select max(code) from company where pid = #{pid,jdbcType=BIGINT} and is_regulatory = #{isRegulatory,jdbcType=TINYINT}
+  </select>
+
+  <select id="selectCompanyTreeByPid" resultMap="BaseTreeResultMap">
+    select id, company_name, pid, pid remark, hierarchy, is_regulatory
+    from company where 1=1
+    <if test="pid != null ">
+      and pid = #{pid,jdbcType=BIGINT}
+    </if>
+    <if test="isRegulatory == 1 ">
+      and is_regulatory = 1
+    </if>
+    <!--<if test="pid == null ">-->
+      <!--and pid = 0-->
+    <!--</if>-->
+    <if test="state != null ">
+      and state = 1
+    </if>
+    order by code asc
+  </select>
+
+  <select id="getRegulatoryCompanyAutocomplete" resultMap="BaseTreeResultMap">
+    select id, company_name, pid, pid remark, hierarchy, is_regulatory
+    from company where is_regulatory = 1
+    <if test="searchName!= null and searchName!=''">
+      and company_name like CONCAT('%',#{searchName},'%')
+    </if>
+     and state = 1 order by code asc
+  </select>
+
+  <select id="selectCompanyTreeById" parameterType="java.lang.Long" resultMap="BaseTreeResultMap">
+    select id, company_name, pid, hierarchy, is_regulatory
+    from company where 1=1
+    <if test="id != null ">
+      and id = #{id,jdbcType=BIGINT}
+    </if>
+    <if test="isRegulatory == 1 ">
+      and is_regulatory = 1
+    </if>
+    <if test="id == null ">
+      and id = 0
+    </if>
+    <if test="state != null ">
+      and state = 1
+    </if>
+    order by code asc
+  </select>
+
+  <select id="selectALLCompanyTreeSize" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(id) from company where state = 1
+    <if test="pid != null ">
+      and pid = #{pid,jdbcType=BIGINT}
+    </if>
+  </select>
+
+    <select id="selectCompanyList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from company
+        where company_name not like '%直管%'
+        <if test="pid != null and pid != ''">
+            and ( pid in
+            <foreach collection="pid" item="companyId" index="index"
+                     open="(" close=")" separator=",">
+                #{companyId,jdbcType=BIGINT}
+            </foreach>
+            or id in
+            <foreach collection="pid" item="companyId" index="index"
+                     open="(" close=")" separator=",">
+              #{companyId,jdbcType=BIGINT}
+            </foreach>
+            )
+        </if>
+        <if test="searchEntity.searchName!= null and searchEntity.searchName!=''">
+          and company_name like CONCAT('%',#{searchEntity.searchName},'%')
+        </if>
+        <if test="state != null ">
+          and state = 1
+        </if>
+        order by code desc
+    </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from company
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from company
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Company">
+    insert into company (id, code, company_name, 
+      business_id, region_id, legal_person, 
+      contacter, contacter_telephone, post_code, 
+      address, is_regulatory, pid, hierarchy,
+      orderby, remark, create_user, 
+      create_date, oper_user, oper_date, state, type_id, people_number
+      )
+    values (#{id,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{companyName,jdbcType=VARCHAR}, 
+      #{businessId,jdbcType=BIGINT}, #{regionId,jdbcType=BIGINT}, #{legalPerson,jdbcType=VARCHAR}, 
+      #{contacter,jdbcType=VARCHAR}, #{contacterTelephone,jdbcType=VARCHAR}, #{postCode,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{isRegulatory,jdbcType=TINYINT}, #{pid,jdbcType=BIGINT}, #{hierarchy,jdbcType=TINYINT},
+      #{orderby,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP},#{state,jdbcType=TINYINT},#{typeId,jdbcType=TINYINT}, #{peopleNumber,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Company">
+    insert into company
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="companyName != null">
+        company_name,
+      </if>
+      <if test="businessId != null">
+        business_id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="legalPerson != null">
+        legal_person,
+      </if>
+      <if test="contacter != null">
+        contacter,
+      </if>
+      <if test="contacterTelephone != null">
+        contacter_telephone,
+      </if>
+      <if test="postCode != null">
+        post_code,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="isRegulatory != null">
+        is_regulatory,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="hierarchy != null">
+        hierarchy,
+      </if>
+      <if test="orderby != null">
+        orderby,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="typeId != null">
+        type_id,
+      </if>
+      <if test="peopleNumber != null">
+        people_number,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="companyName != null">
+        #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessId != null">
+        #{businessId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="legalPerson != null">
+        #{legalPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="contacter != null">
+        #{contacter,jdbcType=VARCHAR},
+      </if>
+      <if test="contacterTelephone != null">
+        #{contacterTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="postCode != null">
+        #{postCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isRegulatory != null">
+        #{isRegulatory,jdbcType=TINYINT},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="hierarchy != null">
+        #{hierarchy,jdbcType=TINYINT},
+      </if>
+      <if test="orderby != null">
+        #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="typeId != null">
+        #{typeId,jdbcType=TINYINT},
+      </if>
+      <if test="peopleNumber != null">
+        #{peopleNumber,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Company">
+    update company
+    <set>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="companyName != null">
+        company_name = #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="businessId != null">
+        business_id = #{businessId,jdbcType=BIGINT},
+      </if>
+      <if test="regionId != null">
+        region_id = #{regionId,jdbcType=BIGINT},
+      </if>
+      <if test="legalPerson != null">
+        legal_person = #{legalPerson,jdbcType=VARCHAR},
+      </if>
+      <if test="contacter != null">
+        contacter = #{contacter,jdbcType=VARCHAR},
+      </if>
+      <if test="contacterTelephone != null">
+        contacter_telephone = #{contacterTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="postCode != null">
+        post_code = #{postCode,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isRegulatory != null">
+        is_regulatory = #{isRegulatory,jdbcType=TINYINT},
+      </if>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="hierarchy != null">
+        hierarchy = #{hierarchy,jdbcType=TINYINT},
+      </if>
+      <if test="orderby != null">
+        orderby = #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="typeId != null">
+        type_id = #{typeId,jdbcType=TINYINT},
+      </if>
+      <if test="peopleNumber != null">
+        people_number = #{peopleNumber,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Company">
+    update company
+    set code = #{code,jdbcType=VARCHAR},
+      company_name = #{companyName,jdbcType=VARCHAR},
+      business_id = #{businessId,jdbcType=BIGINT},
+      region_id = #{regionId,jdbcType=BIGINT},
+      legal_person = #{legalPerson,jdbcType=VARCHAR},
+      contacter = #{contacter,jdbcType=VARCHAR},
+      contacter_telephone = #{contacterTelephone,jdbcType=VARCHAR},
+      post_code = #{postCode,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      is_regulatory = #{isRegulatory,jdbcType=TINYINT},
+      pid = #{pid,jdbcType=BIGINT},
+      hierarchy = #{hierarchy,jdbcType=TINYINT},
+      orderby = #{orderby,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=TINYINT},
+      type_id = #{typeId,jdbcType=TINYINT},
+      people_number = #{peopleNumber,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

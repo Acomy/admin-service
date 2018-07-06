@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.CourseMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Course">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="course_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="course_type_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="course_hour" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="quertion_number" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="cover_info" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="form" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="platform_type" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="state" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="source" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="industry" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, course_id, course_type_id, course_hour, quertion_number, code, title, description, cover_info, form, platform_type, state,
+    source, create_user, create_date, oper_user, oper_date, industry
+  </sql>
+
+  <select id="selectCourseList" resultMap="BaseResultMap">
+    select
+    c.*
+    from course c, course_type_course ctc
+    where c.course_id = ctc.course_id and ctc.course_type_id in
+    <foreach collection="inttypeid" item="item" index="index"
+             open="(" close=")" separator=",">
+      #{item,jdbcType=BIGINT}
+    </foreach>
+    <if test="courseName!=null and courseName != ''">
+      and varName = #{courseName}
+    </if>
+  </select>
+
+
+  <select id="selectByCourseId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from course
+    where course_id = #{courseId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from course
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from course
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Course">
+    insert into course (id, course_id, course_type_id, course_hour, quertion_number, code,
+      title, description, cover_info, 
+      form, platform_type, state, 
+      source, create_user, create_date, 
+      oper_user, oper_date, industry)
+    values (#{id,jdbcType=BIGINT}, #{courseId,jdbcType=INTEGER},#{courseTypeId,jdbcType=INTEGER},#{courseHour,jdbcType=INTEGER},#{quertionNumber,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR},
+      #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{coverInfo,jdbcType=VARCHAR}, 
+      #{form,jdbcType=TINYINT}, #{platformType,jdbcType=TINYINT}, #{state,jdbcType=TINYINT}, 
+      #{source,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}, #{industry,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Course">
+    insert into course
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="courseTypeId != null">
+        course_type_id,
+      </if>
+      <if test="courseHour != null">
+        course_hour,
+      </if>
+      <if test="quertionNumber != null">
+        quertion_number,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="coverInfo != null">
+        cover_info,
+      </if>
+      <if test="form != null">
+        form,
+      </if>
+      <if test="platformType != null">
+        platform_type,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="industry != null">
+        industry,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="courseTypeId != null">
+        #{courseTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="courseHour != null">
+        #{courseHour,jdbcType=INTEGER},
+      </if>
+      <if test="quertionNumber != null">
+        #{quertionNumber,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="coverInfo != null">
+        #{coverInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="form != null">
+        #{form,jdbcType=TINYINT},
+      </if>
+      <if test="platformType != null">
+        #{platformType,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="industry != null">
+        #{industry,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Course">
+    update course
+    <set>
+      <if test="courseId != null">
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="courseTypeId != null">
+        course_type_id = #{courseTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="courseHour != null">
+        course_hour = #{courseHour,jdbcType=INTEGER},
+      </if>
+      <if test="quertionNumber != null">
+        quertion_number = #{quertionNumber,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="coverInfo != null">
+        cover_info = #{coverInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="form != null">
+        form = #{form,jdbcType=TINYINT},
+      </if>
+      <if test="platformType != null">
+        platform_type = #{platformType,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="industry != null">
+        industry = #{industry,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Course">
+    update course
+    set
+      course_id = #{courseId,jdbcType=INTEGER},
+      course_type_id = #{courseTypeId,jdbcType=INTEGER},
+      course_hour = #{courseHour,jdbcType=INTEGER},
+      quertion_number = #{quertionNumber,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      cover_info = #{coverInfo,jdbcType=VARCHAR},
+      form = #{form,jdbcType=TINYINT},
+      platform_type = #{platformType,jdbcType=TINYINT},
+      state = #{state,jdbcType=TINYINT},
+      source = #{source,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      industry = #{industry,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

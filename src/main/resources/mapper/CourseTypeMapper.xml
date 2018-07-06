@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.CourseTypeMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.CourseType">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="description" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="course_type_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="source" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="code" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pid" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="orderby" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="hierarchy" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="state" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="BaseResultTreeMap" type="com.bossien.common.model.basics.CourseType">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="type_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="pid" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="orderby" javaType="java.lang.Integer" jdbcType="INTEGER" />
+    </constructor>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, type_name, description, course_type_id, source, code, pid, orderby, hierarchy, state, create_user, create_date,
+    oper_user, oper_date
+  </sql>
+
+  <select id="selectCourseTypeTree" resultMap="BaseResultTreeMap">
+    select ct.course_type_id id, ct.type_name type_name,ct.pid, 1 orderby from course_type ct
+    union all
+    select c.course_id id, c.title type_name,ctc.course_type_id pid, 2 orderby from course c, course_type_course ctc where c.course_id = ctc.course_id
+    union all
+    select q.question_id id, q.content type_name,cq.course_id pid, 3 orderby from course_question cq, question q where cq.question_id = q.question_id
+  </select>
+
+
+  <select id="selectByCourseTypeId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from course_type
+    where course_type_id = #{courseTypeId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from course_type
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from course_type
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.CourseType">
+    insert into course_type (id, type_name, description, course_type_id, source, code,
+      pid, orderby, hierarchy,
+      state, create_user, create_date, 
+      oper_user, oper_date)
+    values (#{id,jdbcType=BIGINT}, #{typeName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
+      #{courseTypeId,jdbcType=INTEGER},#{source,jdbcType=VARCHAR},#{code,jdbcType=VARCHAR},
+      #{pid,jdbcType=BIGINT}, #{orderby,jdbcType=INTEGER}, #{hierarchy,jdbcType=TINYINT},
+      #{state,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.CourseType">
+    insert into course_type
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="typeName != null">
+        type_name,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="courseTypeId != null">
+        course_type_id,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="pid != null">
+        pid,
+      </if>
+      <if test="orderby != null">
+        orderby,
+      </if>
+      <if test="hierarchy != null">
+        hierarchy,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="typeName != null">
+        #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="courseTypeId != null">
+        #{courseTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="orderby != null">
+        #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="hierarchy != null">
+        #{hierarchy,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.CourseType">
+    update course_type
+    <set>
+      <if test="typeName != null">
+        type_name = #{typeName,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="courseTypeId != null">
+        course_type_id = #{courseTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="pid != null">
+        pid = #{pid,jdbcType=BIGINT},
+      </if>
+      <if test="orderby != null">
+        orderby = #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="hierarchy != null">
+        hierarchy = #{hierarchy,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.CourseType">
+    update course_type
+    set type_name = #{typeName,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      course_type_id = #{courseTypeId,jdbcType=INTEGER},
+      source = #{source,jdbcType=VARCHAR},
+      code = #{code,jdbcType=VARCHAR},
+      pid = #{pid,jdbcType=BIGINT},
+      orderby = #{orderby,jdbcType=INTEGER},
+      hierarchy = #{hierarchy,jdbcType=TINYINT},
+      state = #{state,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

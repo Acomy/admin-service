@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.ExaminationMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Examination">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="extract_num" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="project_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="sign" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="ProjectNameResultMap" type="com.bossien.common.model.basics.Examination">
+    <id property="id" column="id"/>
+    <result property="extractNum" column="extract_num"/>
+    <result property="projectId" column="project_id"/>
+    <result property="projectName" column="project_name"/>
+    <result property="sign" column="sign"/>
+    <result property="createDate" column="create_date"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, content, extract_num, project_id, sign, create_user, create_date, oper_user,
+    oper_date
+  </sql>
+
+
+  <select id="selectByProjectId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from examination
+    where project_id = #{projectId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectExaminationList" parameterType="com.bossien.common.util.SearchEntity" resultMap="ProjectNameResultMap">
+    select e.id, e.extract_num, e.project_id, pb.basic_name project_name, e.sign, e.create_date from examination e, project_basic pb
+    where e.project_id = pb.id
+    <if test="searchName!= null and searchName!=''">
+      and pb.basic_name like CONCAT('%',#{searchName},'%')
+    </if>
+    <if test="startTime!=null and startTime!=''">
+      and pb.begin_time &gt;= CONCAT(#{startTime},' 00:00:00')
+    </if>
+    <if test="endTime!=null and endTime!=''">
+      and pb.end_time &lt;= CONCAT(#{endTime},' 23:59:59')
+    </if>
+    order by e.create_date desc
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from examination
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from examination
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Examination">
+    insert into examination (id, content, extract_num, 
+      project_id, sign, create_user,
+      create_date, oper_user, oper_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{content,jdbcType=VARCHAR}, #{extractNum,jdbcType=INTEGER}, 
+      #{projectId,jdbcType=BIGINT}, #{sign,jdbcType=TINYINT}, #{createUser,jdbcType=VARCHAR},
+      #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Examination">
+    insert into examination
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="extractNum != null">
+        extract_num,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="sign != null">
+        sign,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="extractNum != null">
+        #{extractNum,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="sign != null">
+        #{sign,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Examination">
+    update examination
+    <set>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="extractNum != null">
+        extract_num = #{extractNum,jdbcType=INTEGER},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="sign != null">
+        sign = #{sign,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Examination">
+    update examination
+    set content = #{content,jdbcType=VARCHAR},
+      extract_num = #{extractNum,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=BIGINT},
+      sign = #{sign,jdbcType=TINYINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

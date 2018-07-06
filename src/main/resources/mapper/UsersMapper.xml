@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.UsersMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Users">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="username" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="nickname" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="company_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="telephone" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="sex" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="email" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="state" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="open_id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="supporter" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="user_type" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="regist_type" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="exam_num" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="is_register" javaType="java.lang.Byte" jdbcType="TINYINT" />
+    </constructor>
+  </resultMap>
+
+  <resultMap id="BaseListResultMap" type="com.bossien.common.model.basics.Users">
+    <id property="id" column="id"/>
+    <result property="username" column="username"/>
+    <result property="nickname" column="nickname"/>
+    <result property="telephone" column="telephone"/>
+    <result property="email" column="email"/>
+    <result property="roleNames" column="role_name"/>
+    <result property="companyId" column="company_id"/>
+    <result property="companyName" column="company_name"/>
+    <result property="createDate" column="create_date"/>
+    <result property="state" column="state"/>
+    <result property="examNum" column="exam_num"/>
+    <result property="openId" column="open_id"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, username, nickname, password, company_id, telephone, sex, email, state, remark, open_id,
+    create_user, create_date, oper_user, oper_date, supporter, user_type, regist_type,exam_num,is_register
+  </sql>
+
+  <update id="updateMergerCompany" parameterType="com.bossien.common.model.basics.Users">
+    update users
+    set company_id = #{companyId,jdbcType=BIGINT}
+    where company_id in
+    <foreach collection="mergerIds" item="companyId" index="index"
+             open="(" close=")" separator=",">
+      #{companyId,jdbcType=BIGINT}
+    </foreach>
+  </update>
+
+
+  <update id="updateCompanyUserState">
+    update users
+    set state = #{state,jdbcType=TINYINT}
+    where company_id  = #{companyId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateUserName" parameterType="map">
+    update users
+    set username = #{newUserName}
+    where username  = #{oldUserName}
+  </update>
+
+  <select id="findUserSize" resultType="java.lang.Integer">
+    select count(*) from users
+  </select>
+
+  <select id="selectAccountList" resultMap="BaseResultMap">
+    select
+      u.id, u.username, u.nickname, u.password, u.company_id, u.telephone, u.sex, u.email, u.state, u.remark, u.open_id,
+      u.create_user, u.create_date, u.oper_user, u.oper_date, u.supporter, u.user_type, u.regist_type,u.exam_num,
+    from users u, user_role ur where u.id = ur.user_id and ur.role_id = #{roleId}
+    <if test="searchEntity.searchName!= null and searchEntity.searchName!=''">
+      and ${searchEntity.searchName} like CONCAT('%',#{searchEntity.searchValue},'%')
+    </if>
+    <if test="searchEntity.startTime!=null and searchEntity.startTime!=''">
+      and u.create_date &gt;= CONCAT(#{searchEntity.startTime},' 00:00:00')
+    </if>
+    <if test="searchEntity.endTime!=null and searchEntity.endTime!=''">
+      and u.create_date &lt;= CONCAT(#{searchEntity.endTime},' 23:59:59')
+    </if>
+    order by u.create_date desc
+  </select>
+
+    <select id="selectUserList" parameterType="com.bossien.common.util.SearchEntity" resultMap="BaseListResultMap">
+        select u.id, u.username, u.nickname, u.telephone, u.email, r.role_name, u.company_id, u.create_date, u.state, u.exam_num, u.open_id
+        from users u, user_role ur, role r where u.id = ur.user_id and ur.role_id = r.id
+        <if test="searchName!= null and searchName!= ''">
+          and CONCAT('u.',${searchName}) like CONCAT('%',#{searchValue},'%')
+        </if>
+        <if test="startTime!=null and startTime!=''">
+            and u.create_date &gt;= CONCAT(#{startTime},' 00:00:00')
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            and u.create_date &lt;= CONCAT(#{endTime},' 23:59:59')
+        </if>
+        order by create_date desc
+    </select>
+
+  <select id="selectByCompanyIdList" parameterType="java.lang.Long" resultMap="BaseListResultMap">
+    select u.id, u.username, u.nickname, u.telephone, u.email, r.role_name, u.company_id, c.company_name, u.create_date, u.state, u.exam_num, u.open_id
+    from users u, user_role ur, role r, company c where u.id = ur.user_id and ur.role_id = r.id and u.company_id = c.id
+    <if test="companyId != null and companyId != ''">
+      and (c.pid in
+        <foreach collection="companyId" item="ids" index="index"
+                 open="(" close=")" separator=",">
+          #{ids,jdbcType=BIGINT}
+        </foreach>
+        or c.id in
+        <foreach collection="companyId" item="ids" index="index"
+                 open="(" close=")" separator=",">
+          #{ids,jdbcType=BIGINT}
+        </foreach>
+      )
+    </if>
+      <if test="searchEntity.searchName!= null and searchEntity.searchName!= ''">
+        and u.${searchEntity.searchName} like CONCAT('%',#{searchEntity.searchValue},'%')
+      </if>
+    order by u.create_date desc
+  </select>
+
+
+  <select id="selectUserSizeByCompanyId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select count(id) from users where company_id =  #{companyId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="delete" parameterType="java.lang.Long">
+      delete from users
+      where id in
+      <foreach collection="array" item="ids" index="index"
+               open="(" close=")" separator=",">
+          #{ids,jdbcType=BIGINT}
+      </foreach>
+  </delete>
+
+  <select id="selectByUsername" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from users
+      where username = #{username,jdbcType=VARCHAR}
+      <if test="id!=null and id!=''">
+          and id != #{id,jdbcType=BIGINT}
+      </if>
+  </select>
+
+  <select id="selectByTelephone" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from users
+    where telephone = #{telephone,jdbcType=VARCHAR}
+    <if test="id!=null and id!=''">
+      and id != #{id,jdbcType=BIGINT}
+    </if>
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from users
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from users
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Users">
+    insert into users (id, username, nickname, 
+      password, company_id, telephone, sex,
+      email, state, remark, 
+      open_id, create_user, create_date, 
+      oper_user, oper_date, supporter, user_type, regist_type,exam_num,is_register)
+    values (#{id,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
+      #{password,jdbcType=VARCHAR}, #{companyId,jdbcType=BIGINT}, #{telephone,jdbcType=VARCHAR}, #{sex,jdbcType=TINYINT},
+      #{email,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT}, #{remark,jdbcType=VARCHAR}, 
+      #{openId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}, #{supporter,jdbcType=TINYINT}, #{userType,jdbcType=TINYINT},
+      #{registType,jdbcType=TINYINT},#{examNum,jdbcType=TINYINT}#{isRegister,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Users">
+    insert into users
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="companyId != null">
+        company_id,
+      </if>
+      <if test="telephone != null">
+        telephone,
+      </if>
+      <if test="sex != null">
+        sex,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="openId != null">
+        open_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="supporter != null">
+        supporter,
+      </if>
+      <if test="userType != null">
+        user_type,
+      </if>
+      <if test="registType != null">
+        regist_type,
+      </if>
+      <if test="examNum != null">
+         exam_num,
+      </if>
+      <if test="isRegister != null">
+        is_register,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="telephone != null">
+        #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supporter != null">
+        #{supporter,jdbcType=TINYINT},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=TINYINT},
+      </if>
+      <if test="registType != null">
+        #{registType,jdbcType=TINYINT},
+      </if>
+      <if test="examNum != null">
+          exam_num = #{examNum,jdbcType=TINYINT},
+      </if>
+      <if test="isRegister != null">
+        is_register = #{isRegister,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Users">
+    update users
+    <set>
+      <if test="username != null and username != ''">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null and password != ''">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null">
+        company_id = #{companyId,jdbcType=BIGINT},
+      </if>
+      <if test="telephone != null">
+        telephone = #{telephone,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        sex = #{sex,jdbcType=TINYINT},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null">
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="supporter != null">
+        supporter = #{supporter,jdbcType=TINYINT},
+      </if>
+      <if test="userType != null">
+        user_type = #{userType,jdbcType=TINYINT},
+      </if>
+      <if test="registType != null">
+        regist_type = #{registType,jdbcType=TINYINT},
+      </if>
+      <if test="examNum != null">
+        exam_num = #{examNum,jdbcType=TINYINT},
+      </if>
+      <if test="isRegister != null">
+        is_register = #{isRegister,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Users">
+    update users
+    set username = #{username,jdbcType=VARCHAR},
+      nickname = #{nickname,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      company_id = #{companyId,jdbcType=BIGINT},
+      telephone = #{telephone,jdbcType=VARCHAR},
+      sex = #{sex,jdbcType=TINYINT},
+      email = #{email,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      remark = #{remark,jdbcType=VARCHAR},
+      open_id = #{openId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      supporter = #{supporter,jdbcType=TINYINT},
+      user_type = #{userType,jdbcType=TINYINT},
+      regist_type = #{registType,jdbcType=TINYINT},
+      exam_num = #{examNum,jdbcType=TINYINT},
+      is_register = #{isRegister,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

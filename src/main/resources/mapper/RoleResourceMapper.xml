@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.RoleResourceMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.RoleResource">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="role_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="menu_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="resource_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, role_id, menu_id, resource_id, create_user, create_date, oper_user, oper_date
+  </sql>
+
+  <select id="selectRoleResourceList" parameterType="java.lang.Long" resultType="java.lang.String">
+    select CONCAT(&apos;/&apos;,a.path,&apos;/&apos;, SUBSTRING_INDEX(a.resource_name,&apos;|&apos;,-1)) resource_name from
+    (select r.id, r.resource_name, m.id menu_id,m.path from resource r, menu m where m.pid !=0)a
+    LEFT JOIN role_resource ro on ro.resource_id = a.id and ro.menu_id = a.menu_id and ro.role_id = #{roleId,jdbcType=BIGINT} where ro.role_id is not null
+    UNION
+    select CONCAT(&apos;/&apos;,a.path,&apos;/&apos;, SUBSTRING_INDEX(a.resource_name,&apos;|&apos;,1)) resource_name from
+    (select r.id, r.resource_name, m.id menu_id,m.path from resource r, menu m where m.pid !=0)a
+    LEFT JOIN role_resource ro on ro.resource_id = a.id and ro.menu_id = a.menu_id and ro.role_id = #{roleId,jdbcType=BIGINT} where ro.role_id is not null
+    UNION
+    select CONCAT(&apos;/&apos;,a.path,&apos;/&apos;,SUBSTRING_INDEX(SUBSTRING_INDEX(a.resource_name,&apos;|&apos;,-2),&apos;|&apos;,1)) resource_name from
+    (select r.id, r.resource_name, m.id menu_id,m.path from resource r, menu m where m.pid !=0)a
+    LEFT JOIN role_resource ro on ro.resource_id = a.id and ro.menu_id = a.menu_id and ro.role_id = #{roleId,jdbcType=BIGINT}  where ro.role_id is not null
+  </select>
+
+  <delete id="deleteByRoleId" parameterType="java.lang.Long">
+    delete from role_resource
+    where role_id = #{roleId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from role_resource
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from role_resource
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.RoleResource">
+    insert into role_resource (id, role_id, menu_id, resource_id,
+      create_user, create_date, oper_user, 
+      oper_date)
+    values (#{id,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, #{menuId,jdbcType=BIGINT}, #{resourceId,jdbcType=BIGINT},
+      #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, 
+      #{operDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.RoleResource">
+    insert into role_resource
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="menuId != null">
+        menu_id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="menuId != null">
+        #{menuId,jdbcType=BIGINT},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.RoleResource">
+    update role_resource
+    <set>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="menuId != null">
+        menu_id = #{menuId,jdbcType=BIGINT},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.RoleResource">
+    update role_resource
+    set role_id = #{roleId,jdbcType=BIGINT},
+      menu_id = #{menuId,jdbcType=BIGINT},
+      resource_id = #{resourceId,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

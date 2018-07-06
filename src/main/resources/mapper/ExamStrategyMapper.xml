@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.ExamStrategyMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.ExamStrategy">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="project_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="role_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="role_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="total_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="exam_duration" javaType="java.lang.Short" jdbcType="SMALLINT" />
+      <arg column="pass_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="single_count" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="single_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="many_count" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="many_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="judge_count" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="judge_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="fillout_count" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="fillout_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="answer_count" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="answer_score" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, project_id, role_id, role_name, total_score, exam_duration, pass_score, single_count, 
+    single_score, many_count, many_score, judge_count, judge_score, fillout_count, fillout_score, 
+    answer_count, answer_score, create_user, create_date, oper_user, oper_date
+  </sql>
+
+
+  <select id="selectByProjectId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from exam_strategy
+    where project_id = #{projectId,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByProjectId" parameterType="java.lang.Long">
+    delete from exam_strategy
+    where project_id = #{projectId,jdbcType=BIGINT}
+  </delete>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from exam_strategy
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from exam_strategy
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.ExamStrategy">
+    insert into exam_strategy (id, project_id, role_id, 
+      role_name, total_score, exam_duration, 
+      pass_score, single_count, single_score, 
+      many_count, many_score, judge_count, 
+      judge_score, fillout_count, fillout_score, 
+      answer_count, answer_score, create_user, 
+      create_date, oper_user, oper_date
+      )
+    values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=BIGINT}, #{roleId,jdbcType=BIGINT}, 
+      #{roleName,jdbcType=VARCHAR}, #{totalScore,jdbcType=TINYINT}, #{examDuration,jdbcType=SMALLINT}, 
+      #{passScore,jdbcType=TINYINT}, #{singleCount,jdbcType=TINYINT}, #{singleScore,jdbcType=TINYINT}, 
+      #{manyCount,jdbcType=TINYINT}, #{manyScore,jdbcType=TINYINT}, #{judgeCount,jdbcType=TINYINT}, 
+      #{judgeScore,jdbcType=TINYINT}, #{filloutCount,jdbcType=TINYINT}, #{filloutScore,jdbcType=TINYINT}, 
+      #{answerCount,jdbcType=TINYINT}, #{answerScore,jdbcType=TINYINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.ExamStrategy">
+    insert into exam_strategy
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="roleId != null">
+        role_id,
+      </if>
+      <if test="roleName != null">
+        role_name,
+      </if>
+      <if test="totalScore != null">
+        total_score,
+      </if>
+      <if test="examDuration != null">
+        exam_duration,
+      </if>
+      <if test="passScore != null">
+        pass_score,
+      </if>
+      <if test="singleCount != null">
+        single_count,
+      </if>
+      <if test="singleScore != null">
+        single_score,
+      </if>
+      <if test="manyCount != null">
+        many_count,
+      </if>
+      <if test="manyScore != null">
+        many_score,
+      </if>
+      <if test="judgeCount != null">
+        judge_count,
+      </if>
+      <if test="judgeScore != null">
+        judge_score,
+      </if>
+      <if test="filloutCount != null">
+        fillout_count,
+      </if>
+      <if test="filloutScore != null">
+        fillout_score,
+      </if>
+      <if test="answerCount != null">
+        answer_count,
+      </if>
+      <if test="answerScore != null">
+        answer_score,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null">
+        #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="roleName != null">
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalScore != null">
+        #{totalScore,jdbcType=TINYINT},
+      </if>
+      <if test="examDuration != null">
+        #{examDuration,jdbcType=SMALLINT},
+      </if>
+      <if test="passScore != null">
+        #{passScore,jdbcType=TINYINT},
+      </if>
+      <if test="singleCount != null">
+        #{singleCount,jdbcType=TINYINT},
+      </if>
+      <if test="singleScore != null">
+        #{singleScore,jdbcType=TINYINT},
+      </if>
+      <if test="manyCount != null">
+        #{manyCount,jdbcType=TINYINT},
+      </if>
+      <if test="manyScore != null">
+        #{manyScore,jdbcType=TINYINT},
+      </if>
+      <if test="judgeCount != null">
+        #{judgeCount,jdbcType=TINYINT},
+      </if>
+      <if test="judgeScore != null">
+        #{judgeScore,jdbcType=TINYINT},
+      </if>
+      <if test="filloutCount != null">
+        #{filloutCount,jdbcType=TINYINT},
+      </if>
+      <if test="filloutScore != null">
+        #{filloutScore,jdbcType=TINYINT},
+      </if>
+      <if test="answerCount != null">
+        #{answerCount,jdbcType=TINYINT},
+      </if>
+      <if test="answerScore != null">
+        #{answerScore,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.ExamStrategy">
+    update exam_strategy
+    <set>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=BIGINT},
+      </if>
+      <if test="roleId != null">
+        role_id = #{roleId,jdbcType=BIGINT},
+      </if>
+      <if test="roleName != null">
+        role_name = #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="totalScore != null">
+        total_score = #{totalScore,jdbcType=TINYINT},
+      </if>
+      <if test="examDuration != null">
+        exam_duration = #{examDuration,jdbcType=SMALLINT},
+      </if>
+      <if test="passScore != null">
+        pass_score = #{passScore,jdbcType=TINYINT},
+      </if>
+      <if test="singleCount != null">
+        single_count = #{singleCount,jdbcType=TINYINT},
+      </if>
+      <if test="singleScore != null">
+        single_score = #{singleScore,jdbcType=TINYINT},
+      </if>
+      <if test="manyCount != null">
+        many_count = #{manyCount,jdbcType=TINYINT},
+      </if>
+      <if test="manyScore != null">
+        many_score = #{manyScore,jdbcType=TINYINT},
+      </if>
+      <if test="judgeCount != null">
+        judge_count = #{judgeCount,jdbcType=TINYINT},
+      </if>
+      <if test="judgeScore != null">
+        judge_score = #{judgeScore,jdbcType=TINYINT},
+      </if>
+      <if test="filloutCount != null">
+        fillout_count = #{filloutCount,jdbcType=TINYINT},
+      </if>
+      <if test="filloutScore != null">
+        fillout_score = #{filloutScore,jdbcType=TINYINT},
+      </if>
+      <if test="answerCount != null">
+        answer_count = #{answerCount,jdbcType=TINYINT},
+      </if>
+      <if test="answerScore != null">
+        answer_score = #{answerScore,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.ExamStrategy">
+    update exam_strategy
+    set project_id = #{projectId,jdbcType=BIGINT},
+      role_id = #{roleId,jdbcType=BIGINT},
+      role_name = #{roleName,jdbcType=VARCHAR},
+      total_score = #{totalScore,jdbcType=TINYINT},
+      exam_duration = #{examDuration,jdbcType=SMALLINT},
+      pass_score = #{passScore,jdbcType=TINYINT},
+      single_count = #{singleCount,jdbcType=TINYINT},
+      single_score = #{singleScore,jdbcType=TINYINT},
+      many_count = #{manyCount,jdbcType=TINYINT},
+      many_score = #{manyScore,jdbcType=TINYINT},
+      judge_count = #{judgeCount,jdbcType=TINYINT},
+      judge_score = #{judgeScore,jdbcType=TINYINT},
+      fillout_count = #{filloutCount,jdbcType=TINYINT},
+      fillout_score = #{filloutScore,jdbcType=TINYINT},
+      answer_count = #{answerCount,jdbcType=TINYINT},
+      answer_score = #{answerScore,jdbcType=TINYINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

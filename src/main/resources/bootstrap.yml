@@ -1,0 +1,28 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8888/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ipAddress}:${server.port}
+    hostname: localhost
+    ip-address: localhost
+    non-secure-port-enabled: true
+    non-secure-port: 8081
+server:
+  port: 8081
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 1000
+    max-threads: 600
+    max-connections: 2000
+    min-spare-threads: 100
+  max-http-header-size: 102400
+spring:
+  cloud:
+    config:
+      uri: http://127.0.0.1:8889
+      profile: dev
+      label: master
+  application:
+    name: admin-service

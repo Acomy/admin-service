@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.ProjectBasicMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.ProjectBasic">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="basic_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="subject_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="industry" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="category" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="sign" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="form" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="state" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="begin_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="end_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="count" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="mode" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="important1" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="important2" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="important3" javaType="java.lang.Byte" jdbcType="TINYINT" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, basic_name, subject_id, industry, category, sign, form, state, begin_time, end_time,
+    count, mode, create_user, create_date, oper_user, oper_date, remark, important1, important2, important3
+  </sql>
+
+  <select id="selectByProjectState" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project_basic pb where pb.state = #{state,jdbcType=TINYINT}
+  </select>
+
+  <select id="selectSpeedByProjectId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+    select ROUND(count(e.id)/pb.count*100) progress from project_basic pb,examination e
+    where pb.id = #{projectId,jdbcType=BIGINT} and pb.id = e.project_id and pb.sign = e.sign
+  </select>
+
+  <select id="selectByProjectExamination"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project_basic pb where pb.state = 2 and pb.count &gt;
+    (select count(*) from examination e where e.project_id = pb.id)
+  </select>
+
+  <select id="selectByProjectForm"  resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project_basic pb where pb.form = 1
+  </select>
+
+  <select id="selectProjectBasicList" parameterType="com.bossien.common.util.SearchEntity" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project_basic where 1=1
+    <if test="searchName!= null and searchName!=''">
+      and basic_name like CONCAT('%',#{searchName},'%')
+    </if>
+    <if test="startTime!=null and startTime!=''">
+      and begin_time &gt;= CONCAT(#{startTime},' 00:00:00')
+    </if>
+    <if test="endTime!=null and endTime!=''">
+      and end_time &lt;= CONCAT(#{endTime},' 23:59:59')
+    </if>
+    order by create_date desc
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from project_basic
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByBasicName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from project_basic
+    where basic_name = #{basicName,jdbcType=VARCHAR}
+    <if test="id!=null and id!=''">
+      and id != #{id,jdbcType=BIGINT}
+    </if>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from project_basic
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.ProjectBasic">
+    insert into project_basic (id, basic_name, subject_id, industry,
+      category, sign, form,
+      state, begin_time, end_time, 
+      count, mode, create_user, 
+      create_date, oper_user, oper_date, remark, important1, important2, important3
+      )
+    values (#{id,jdbcType=BIGINT}, #{basicName,jdbcType=VARCHAR}, #{subjectId,jdbcType=BIGINT}, #{industry,jdbcType=INTEGER},
+      #{category,jdbcType=TINYINT}, #{sign,jdbcType=TINYINT}, #{form,jdbcType=TINYINT},
+      #{state,jdbcType=TINYINT}, #{beginTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, 
+      #{count,jdbcType=INTEGER}, #{mode,jdbcType=TINYINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR},
+      #{important1,jdbcType=TINYINT}, #{important2,jdbcType=TINYINT}, #{important3,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.ProjectBasic">
+    insert into project_basic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="basicName != null">
+        basic_name,
+      </if>
+      <if test="subjectId != null">
+        subject_id,
+      </if>
+      <if test="industry != null">
+        industry,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="sign != null">
+        sign,
+      </if>
+      <if test="form != null">
+        form,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="beginTime != null">
+        begin_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="count != null">
+        count,
+      </if>
+      <if test="mode != null">
+        mode,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="important1 != null">
+        important1,
+      </if>
+      <if test="important2 != null">
+        important2,
+      </if>
+      <if test="important3 != null">
+        important3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="basicName != null">
+        #{basicName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectId != null">
+        #{subjectId,jdbcType=BIGINT},
+      </if>
+      <if test="industry != null">
+        #{industry,jdbcType=INTEGER},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=TINYINT},
+      </if>
+      <if test="sign != null">
+        #{sign,jdbcType=TINYINT},
+      </if>
+      <if test="form != null">
+        #{form,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="beginTime != null">
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="count != null">
+        #{count,jdbcType=INTEGER},
+      </if>
+      <if test="mode != null">
+        #{mode,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="important1 != null">
+        #{important1,jdbcType=TINYINT},
+      </if>
+      <if test="important2 != null">
+        #{important2,jdbcType=TINYINT},
+      </if>
+      <if test="important3 != null">
+        #{important3,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.ProjectBasic">
+    update project_basic
+    <set>
+      <if test="basicName != null">
+        basic_name = #{basicName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectId != null">
+        subject_id = #{subjectId,jdbcType=BIGINT},
+      </if>
+      <if test="industry != null">
+        industry = #{industry,jdbcType=INTEGER},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=TINYINT},
+      </if>
+      <if test="sign != null">
+        sign = #{sign,jdbcType=TINYINT},
+      </if>
+      <if test="form != null">
+        form = #{form,jdbcType=TINYINT},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="beginTime != null">
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="count != null">
+        count = #{count,jdbcType=INTEGER},
+      </if>
+      <if test="mode != null">
+        mode = #{mode,jdbcType=TINYINT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      important1 = #{important1,jdbcType=TINYINT},
+      important2 = #{important2,jdbcType=TINYINT},
+      important3 = #{important3,jdbcType=TINYINT}
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.ProjectBasic">
+    update project_basic
+    set basic_name = #{basicName,jdbcType=VARCHAR},
+      subject_id = #{subjectId,jdbcType=BIGINT},
+      industry = #{industry,jdbcType=INTEGER},
+      category = #{category,jdbcType=TINYINT},
+      sign = #{sign,jdbcType=TINYINT},
+      form = #{form,jdbcType=TINYINT},
+      state = #{state,jdbcType=TINYINT},
+      begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      count = #{count,jdbcType=INTEGER},
+      mode = #{mode,jdbcType=TINYINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR},
+      important1 = #{important1,jdbcType=TINYINT},
+      important2 = #{important2,jdbcType=TINYINT},
+      important3 = #{important3,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

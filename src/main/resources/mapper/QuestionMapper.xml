@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.QuestionMapper">
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Question">
+    <constructor>
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="question_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="course_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="valid" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="question_no" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="title" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="content" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="category" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="question_type" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="difficult" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="important" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="industry" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="state" javaType="java.lang.Byte" jdbcType="TINYINT" />
+      <arg column="answer" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="answer_desc" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="source" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="analysis" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="exam_point" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="create_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="oper_user" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="oper_date" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+      <arg column="chrEditType" javaType="java.lang.Byte" jdbcType="TINYINT" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, question_id, course_id, valid, question_no, title, content, category, question_type, difficult, important, industry,
+    state, answer, answer_desc, source, analysis, exam_point, create_user, create_date, 
+    oper_user, oper_date, chrEditType
+  </sql>
+
+  <select id="selectProjectQuestion" resultMap="BaseResultMap">
+    (select q.* from question q, course_question cq where cq.question_id = q.question_id and cq.course_id
+    in(select pb.course_id from project_course pb where pb.project_id = #{projectId,jdbcType=BIGINT}) and q.question_type = 1 ORDER BY RAND() LIMIT 0,#{singleCount,jdbcType=TINYINT})
+    UNION ALL
+    (select q.* from question q, course_question cq where cq.question_id = q.question_id and cq.course_id
+    in(select pb.course_id from project_course pb where pb.project_id = #{projectId,jdbcType=BIGINT}) and q.question_type = 2 ORDER BY RAND() LIMIT 0,#{manyCount,jdbcType=TINYINT})
+    UNION ALL
+    (select q.* from question q, course_question cq where cq.question_id = q.question_id and cq.course_id
+    in(select pb.course_id from project_course pb where pb.project_id = #{projectId,jdbcType=BIGINT}) and q.question_type = 3 ORDER BY RAND() LIMIT 0,#{judgeCount,jdbcType=TINYINT})
+  </select>
+
+  <select id="selectQuestionByCourseId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from question q where q.question_id in(select cq.question_id from course_question cq where cq.course_id = #{course_id,jdbcType=BIGINT})
+  </select>
+
+
+  <select id="selectByQuestionId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from question
+    where question_id = #{questionId,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByQuestionNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from question
+    where question_no = #{questionNo,jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from question
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from question
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Question">
+    insert into question (id, question_id, course_id, valid, question_no, title,
+      content, category, question_type, 
+      difficult, important, industry, 
+      state, answer, answer_desc, 
+      source, analysis, exam_point, 
+      create_user, create_date, oper_user, 
+      oper_date, chrEditType)
+    values (#{id,jdbcType=BIGINT}, #{question_id,jdbcType=INTEGER}, #{course_id,jdbcType=INTEGER},
+      #{valid,jdbcType=TINYINT}, #{questionNo,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR},
+      #{content,jdbcType=VARCHAR}, #{category,jdbcType=TINYINT}, #{questionType,jdbcType=TINYINT}, 
+      #{difficult,jdbcType=TINYINT}, #{important,jdbcType=TINYINT}, #{industry,jdbcType=VARCHAR}, 
+      #{state,jdbcType=TINYINT}, #{answer,jdbcType=VARCHAR}, #{answerDesc,jdbcType=VARCHAR}, 
+      #{source,jdbcType=VARCHAR}, #{analysis,jdbcType=VARCHAR}, #{examPoint,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{operUser,jdbcType=VARCHAR}, 
+      #{operDate,jdbcType=TIMESTAMP}, #{chrEditType,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Question">
+    insert into question
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="questionId != null">
+        question_id,
+      </if>
+      <if test="valid != null">
+        valid,
+      </if>
+      <if test="courseId != null">
+        course_id,
+      </if>
+      <if test="questionNo != null">
+        question_no,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="questionType != null">
+        question_type,
+      </if>
+      <if test="difficult != null">
+        difficult,
+      </if>
+      <if test="important != null">
+        important,
+      </if>
+      <if test="industry != null">
+        industry,
+      </if>
+      <if test="state != null">
+        state,
+      </if>
+      <if test="answer != null">
+        answer,
+      </if>
+      <if test="answerDesc != null">
+        answer_desc,
+      </if>
+      <if test="source != null">
+        source,
+      </if>
+      <if test="analysis != null">
+        analysis,
+      </if>
+      <if test="examPoint != null">
+        exam_point,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+      <if test="chrEditType != null">
+        chrEditType,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="questionId != null">
+        #{questionId,jdbcType=INTEGER},
+      </if>
+      <if test="valid != null">
+        #{valid,jdbcType=TINYINT},
+      </if>
+      <if test="courseId != null">
+        #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="questionNo != null">
+        #{questionNo,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=TINYINT},
+      </if>
+      <if test="questionType != null">
+        #{questionType,jdbcType=TINYINT},
+      </if>
+      <if test="difficult != null">
+        #{difficult,jdbcType=TINYINT},
+      </if>
+      <if test="important != null">
+        #{important,jdbcType=TINYINT},
+      </if>
+      <if test="industry != null">
+        #{industry,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        #{state,jdbcType=TINYINT},
+      </if>
+      <if test="answer != null">
+        #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerDesc != null">
+        #{answerDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="analysis != null">
+        #{analysis,jdbcType=VARCHAR},
+      </if>
+      <if test="examPoint != null">
+        #{examPoint,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="chrEditType != null">
+        #{chrEditType,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Question">
+    update question
+    <set>
+      <if test="questionId != null">
+        question_id = #{questionId,jdbcType=INTEGER},
+      </if>
+      <if test="courseId != null">
+        course_id = #{courseId,jdbcType=INTEGER},
+      </if>
+      <if test="valid != null">
+        valid = #{valid,jdbcType=TINYINT},
+      </if>
+      <if test="questionNo != null">
+        question_no = #{questionNo,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=TINYINT},
+      </if>
+      <if test="questionType != null">
+        question_type = #{questionType,jdbcType=TINYINT},
+      </if>
+      <if test="difficult != null">
+        difficult = #{difficult,jdbcType=TINYINT},
+      </if>
+      <if test="important != null">
+        important = #{important,jdbcType=TINYINT},
+      </if>
+      <if test="industry != null">
+        industry = #{industry,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null">
+        state = #{state,jdbcType=TINYINT},
+      </if>
+      <if test="answer != null">
+        answer = #{answer,jdbcType=VARCHAR},
+      </if>
+      <if test="answerDesc != null">
+        answer_desc = #{answerDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        source = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="analysis != null">
+        analysis = #{analysis,jdbcType=VARCHAR},
+      </if>
+      <if test="examPoint != null">
+        exam_point = #{examPoint,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="chrEditType != null">
+        chrEditType = #{chrEditType,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Question">
+    update question
+    set
+      question_id = #{questionId,jdbcType=INTEGER},
+      course_id = #{courseId,jdbcType=INTEGER},
+      valid = #{valid,jdbcType=TINYINT},
+      question_no = #{questionNo,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      category = #{category,jdbcType=TINYINT},
+      question_type = #{questionType,jdbcType=TINYINT},
+      difficult = #{difficult,jdbcType=TINYINT},
+      important = #{important,jdbcType=TINYINT},
+      industry = #{industry,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      answer = #{answer,jdbcType=VARCHAR},
+      answer_desc = #{answerDesc,jdbcType=VARCHAR},
+      source = #{source,jdbcType=VARCHAR},
+      analysis = #{analysis,jdbcType=VARCHAR},
+      exam_point = #{examPoint,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP},
+      chrEditType = #{chrEditType,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

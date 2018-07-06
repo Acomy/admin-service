@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bossien.adminservice.mapper.ResourceMapper">
+
+  <resultMap id="BaseResultMap" type="com.bossien.common.model.basics.Resource">
+    <id property="id" column="id"/>
+    <result property="resourceName" column="resource_name"/>
+    <result property="remark" column="remark"/>
+    <result property="orderby" column="orderby"/>
+    <result property="createUser" column="create_ser"/>
+    <result property="createDate" column="create_date"/>
+    <result property="operUser" column="oper_user"/>
+    <result property="operDate" column="oper_date"/>
+  </resultMap>
+
+  <resultMap id="BaseTreeResultMap" type="com.bossien.common.model.basics.Resource">
+    <id property="id" column="id"/>
+    <result property="resourceName" column="resource_name"/>
+    <result property="menuId" column="menu_id"/>
+    <result property="checked" column="checked"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, resource_name, remark, orderby, create_user, create_date, oper_user, oper_date
+  </sql>
+
+  <select id="selectResourceList" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from resource
+  </select>
+
+
+  <select id="selectResourceTree" parameterType="java.lang.Long" resultMap="BaseTreeResultMap">
+    select b.id,b.resource_name,b.menu_id,b.checked from(
+    select m.id, m.menu_name resource_name, m.pid menu_id, if(ro.role_id is null, 'false','true') checked,m.create_date from
+    menu m LEFT JOIN role_resource ro on m.id = ro.resource_id and ro.role_id = #{roleId,jdbcType=BIGINT}
+    UNION ALL
+    select a.id, a.resource_name, a.menu_id,if(ro.role_id is null,'false','true') checked,a.create_date from
+    (select r.id, r.remark resource_name, m.id menu_id,r.create_date from resource r, menu m where m.pid !=0)a
+    LEFT JOIN role_resource ro on ro.resource_id = a.id and ro.menu_id = a.menu_id and ro.role_id = #{roleId,jdbcType=BIGINT}
+    )b order by b.create_date
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from resource
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from resource
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.bossien.common.model.basics.Resource">
+    insert into resource (id, resource_name, remark,
+      orderby, create_user, create_date, 
+      oper_user, oper_date)
+    values (#{id,jdbcType=BIGINT}, #{resourceName,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR},
+      #{orderby,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{operUser,jdbcType=VARCHAR}, #{operDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.bossien.common.model.basics.Resource">
+    insert into resource
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="resourceName != null">
+        resource_name,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="orderby != null">
+        orderby,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="operUser != null">
+        oper_user,
+      </if>
+      <if test="operDate != null">
+        oper_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="resourceName != null">
+        #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderby != null">
+        #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.bossien.common.model.basics.Resource">
+    update resource
+    <set>
+      <if test="resourceName != null">
+        resource_name = #{resourceName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderby != null">
+        orderby = #{orderby,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operUser != null">
+        oper_user = #{operUser,jdbcType=VARCHAR},
+      </if>
+      <if test="operDate != null">
+        oper_date = #{operDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.bossien.common.model.basics.Resource">
+    update resource
+    set resource_name = #{resourceName,jdbcType=VARCHAR},
+      orderby = #{orderby,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      oper_user = #{operUser,jdbcType=VARCHAR},
+      oper_date = #{operDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
